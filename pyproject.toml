@@ -1,0 +1,28 @@
+[project]
+name = "urlshorter"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Tars",email = "tarsom27v@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4"
+dependencies = [
+    "flask (>=3.1.2,<4.0.0)",
+    "sqlalchemy (>=2.0.46,<3.0.0)",
+    "flask-sqlalchemy (>=3.1.1,<4.0.0)",
+    "pymysql (>=1.1.2,<2.0.0)",
+    "datetime (>=6.0,<7.0)",
+    "bcrypt (>=5.0.0,<6.0.0)",
+    "cryptography (>=46.0.4,<47.0.0)",
+    "flask-jwt-extended (>=4.7.1,<5.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
