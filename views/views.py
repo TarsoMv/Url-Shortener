@@ -43,8 +43,15 @@ def createShortUrl():
     identity = get_jwt_identity() 
     identityInt = int(identity)
 
-    tentativas = 10
-    for i in range(tentativas):
+    siteCheck = db.session.execute(
+            db.select(Site).filter_by(full_url=url, user_id=identityInt)
+        ).scalar_one_or_none()
+
+    if siteCheck:
+        return jsonify({"urlShortened": request.host+request.root_path+"/"+siteCheck.url_short}), 200
+
+    urlEncurtada = None
+    for i in range(10):
         candidate = generate_short_url()
         siteStored = Site.query.filter_by(url_short = candidate).first()
         if not siteStored:
