@@ -8,7 +8,8 @@ from auth.auth import auth_bp
 from stats.stats import stats_bp
 import os
 from dotenv import load_dotenv
-
+import flasgger_config 
+from flasgger import Swagger
 load_dotenv()
 
 def create_app():
@@ -24,5 +25,5 @@ def create_app():
     return app
 
 app = create_app()
-
+swagger = Swagger(app, config=flasgger_config.swagger_config, template=flasgger_config.swagger_template)
 #poetry run flask --app app run --debug

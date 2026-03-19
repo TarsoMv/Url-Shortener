@@ -8,6 +8,54 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @auth_bp.route('', methods=['POST'])
 def authHandler():
+    """
+    Autentica o usuário e retorna um token JWT
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - username
+            - password
+          properties:
+            username:
+              type: string
+              example: "joao_silva"
+            password:
+              type: string
+              format: password
+              example: "senha123"
+    responses:
+      200:
+        description: Login realizado com sucesso
+        schema:
+          type: object
+          properties:
+            access_token:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      400:
+        description: Dados inválidos ou ausentes
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Dados faltando"
+      401:
+        description: Credenciais incorretas
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Bad username or password"
+    """
     dados = request.get_json(silent=True) 
     if not dados:
         return jsonify({"msg":"Dados invalidos"}),400

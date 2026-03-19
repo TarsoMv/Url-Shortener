@@ -13,6 +13,39 @@ stats_bp = Blueprint("stats", __name__, url_prefix="/stats")
 @stats_bp.route("", methods=["GET"])
 @jwt_required()
 def returnSitesAcess():
+    """
+    Retorna as estatísticas de acesso das URLs do usuário autenticado
+    ---
+    tags:
+      - Estatísticas
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: Estatísticas retornadas com sucesso
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              url_short:
+                type: string
+                example: "abc123"
+              full_url:
+                type: string
+                example: "https://meusite.com/pagina-longa"
+              access_count:
+                type: integer
+                example: 42
+      401:
+        description: Token ausente ou inválido
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Token has expired"
+    """
     identity = get_jwt_identity()
     identityInt = int(identity)
 

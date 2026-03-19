@@ -1,0 +1,34 @@
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "apispec",
+            "route": "/apispec.json",
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/docs",  
+}
+
+swagger_template = {
+    "info": {
+        "title": "Encurtador de URL",
+        "description": "Um Encurtador de URL desenvolvido com Flask",
+        "version": "1",
+        "contact": {
+            "name": "Tarso Maia",
+            "email": "tarsom27v@gmail.com"
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Informe: Bearer <seu_token>"
+        }
+    }
+}

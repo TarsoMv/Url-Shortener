@@ -1,0 +1,722 @@
+{
+  "definitions": {},
+  "info": {
+    "contact": {
+      "email": "tarsom27v@gmail.com",
+      "name": "Tarso Maia"
+    },
+    "description": "Um Encurtador de URL desenvolvido com Flask",
+    "title": "Encurtador de URL",
+    "version": "1"
+  },
+  "paths": {
+    "/auth": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "password": {
+                  "example": "senha123",
+                  "format": "password",
+                  "type": "string"
+                },
+                "username": {
+                  "example": "joao_silva",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username",
+                "password"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "schema": {
+              "properties": {
+                "access_token": {
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Dados inv\u00e1lidos ou ausentes",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Dados faltando",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Credenciais incorretas",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Bad username or password",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Autentica o usu\u00e1rio e retorna um token JWT",
+        "tags": [
+          "Autentica\u00e7\u00e3o"
+        ]
+      }
+    },
+    "/stats": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Estat\u00edsticas retornadas com sucesso",
+            "schema": {
+              "items": {
+                "properties": {
+                  "access_count": {
+                    "example": 42,
+                    "type": "integer"
+                  },
+                  "full_url": {
+                    "example": "https://meusite.com/pagina-longa",
+                    "type": "string"
+                  },
+                  "url_short": {
+                    "example": "abc123",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inv\u00e1lido",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Token has expired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Retorna as estat\u00edsticas de acesso das URLs do usu\u00e1rio autenticado",
+        "tags": [
+          "Estat\u00edsticas"
+        ]
+      }
+    },
+    "/url": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Lista de URLs retornada com sucesso",
+            "schema": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "example": {
+                "abc123": "https://meusite.com/pagina-longa",
+                "xyz789": "https://outrosite.com/outra-pagina"
+              },
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inv\u00e1lido",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Token has expired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Lista todas as URLs encurtadas do usu\u00e1rio autenticado",
+        "tags": [
+          "URLs"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "url": {
+                  "example": "https://youtu.be/qivWOZsOPW0",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "URL j\u00e1 encurtada anteriormente para este usu\u00e1rio",
+            "schema": {
+              "properties": {
+                "urlShortened": {
+                  "example": "localhost:5000/abc123",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "201": {
+            "description": "URL encurtada criada com sucesso",
+            "schema": {
+              "properties": {
+                "urlShortened": {
+                  "example": "localhost:5000/xyz789",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Dados inv\u00e1lidos",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "enum": [
+                    "JSON inv\u00e1lido ou ausente",
+                    "URL inv\u00e1lida",
+                    "URL muito longa"
+                  ],
+                  "example": "URL inv\u00e1lida",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inv\u00e1lido",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Token has expired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "409": {
+            "description": "Conflito ao gerar URL curta",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "URL curta j\u00e1 existente",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "enum": [
+                    "Erro ao gerar URL curta \u00fanica",
+                    "Erro no banco de dados",
+                    "Erro inesperado"
+                  ],
+                  "example": "Erro inesperado",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Cria uma URL encurtada",
+        "tags": [
+          "URLs"
+        ]
+      }
+    },
+    "/url/{short_url}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "C\u00f3digo curto da URL a ser removida",
+            "example": "abc123",
+            "in": "path",
+            "name": "short_url",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "URL removida com sucesso"
+          },
+          "401": {
+            "description": "Token ausente ou inv\u00e1lido",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Token has expired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Usu\u00e1rio n\u00e3o tem permiss\u00e3o para remover esta URL",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Forbidden",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "URL n\u00e3o encontrada",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "URL n\u00e3o encontrada",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "409": {
+            "description": "Erro de integridade no banco",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Erro de integridade",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "enum": [
+                    "Erro no banco de dados",
+                    "Erro inesperado"
+                  ],
+                  "example": "Erro inesperado",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Remove uma URL encurtada",
+        "tags": [
+          "URLs"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "C\u00f3digo curto da URL",
+            "example": "abc123",
+            "in": "path",
+            "name": "short_url",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "URL encontrada",
+            "schema": {
+              "properties": {
+                "shortCode": {
+                  "example": "abc123",
+                  "type": "string"
+                },
+                "url": {
+                  "example": "https://meusite.com/pagina-longa",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inv\u00e1lido",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Token has expired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "URL n\u00e3o encontrada",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "N\u00e3o encontrado",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Busca uma URL pelo c\u00f3digo curto",
+        "tags": [
+          "URLs"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "C\u00f3digo curto da URL a ser atualizada",
+            "example": "abc123",
+            "in": "path",
+            "name": "short_url",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "url": {
+                  "example": "https://meusite.com/nova-pagina",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "URL atualizada com sucesso",
+            "schema": {
+              "properties": {
+                "full_url": {
+                  "example": "https://meusite.com/nova-pagina",
+                  "type": "string"
+                },
+                "short_url": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Dados inv\u00e1lidos ou ausentes",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "JSON inv\u00e1lido ou ausente",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inv\u00e1lido",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Token has expired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Usu\u00e1rio n\u00e3o tem permiss\u00e3o para editar esta URL",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Forbidden",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "C\u00f3digo curto n\u00e3o encontrado",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "N\u00e3o encontrado",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "409": {
+            "description": "Erro de integridade no banco",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Erro de integridade",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "enum": [
+                    "Erro no banco de dados",
+                    "Erro inesperado"
+                  ],
+                  "example": "Erro inesperado",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Atualiza a URL completa de um c\u00f3digo curto existente",
+        "tags": [
+          "URLs"
+        ]
+      }
+    },
+    "/users": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "email": {
+                  "example": "joao@email.com",
+                  "type": "string"
+                },
+                "password": {
+                  "example": "senha123",
+                  "format": "password",
+                  "type": "string"
+                },
+                "username": {
+                  "example": "joao_silva",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username",
+                "password",
+                "email"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Usu\u00e1rio criado com sucesso",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Usu\u00e1rio criado",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Dados inv\u00e1lidos ou ausentes",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "enum": [
+                    "JSON inv\u00e1lido",
+                    "Dados faltando",
+                    "Email inv\u00e1lido"
+                  ],
+                  "example": "Dados faltando",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "409": {
+            "description": "Usu\u00e1rio ou email j\u00e1 existente",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "example": "Usu\u00e1rio ou email j\u00e1 existente",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "schema": {
+              "properties": {
+                "msg": {
+                  "enum": [
+                    "Erro no banco de dados",
+                    "Erro inesperado"
+                  ],
+                  "example": "Erro inesperado",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Registra um novo usu\u00e1rio",
+        "tags": [
+          "Usu\u00e1rios"
+        ]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "deprecated": true,
+        "parameters": [
+          {
+            "description": "ID do usu\u00e1rio",
+            "example": 1,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Usu\u00e1rio encontrado",
+            "schema": {
+              "properties": {
+                "email": {
+                  "example": "joao@email.com",
+                  "type": "string"
+                },
+                "username": {
+                  "example": "joao_silva",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "Usu\u00e1rio n\u00e3o encontrado"
+          }
+        },
+        "summary": "Busca um usu\u00e1rio pelo ID",
+        "tags": [
+          "Usu\u00e1rios"
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "description": "Informe: Bearer <seu_token>",
+      "in": "header",
+      "name": "Authorization",
+      "type": "apiKey"
+    }
+  },
+  "swagger": "2.0"
+}

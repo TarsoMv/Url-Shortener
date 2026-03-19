@@ -29,6 +29,83 @@ def is_valid_url(url):
 @views_bp.route("/url", methods=["POST"])
 @jwt_required()
 def createShortUrl():
+    """
+    Cria uma URL encurtada
+    ---
+    tags:
+      - URLs
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              example: "https://youtu.be/qivWOZsOPW0"
+    responses:
+      200:
+        description: URL já encurtada anteriormente para este usuário
+        schema:
+          type: object
+          properties:
+            urlShortened:
+              type: string
+              example: "localhost:5000/abc123"
+      201:
+        description: URL encurtada criada com sucesso
+        schema:
+          type: object
+          properties:
+            urlShortened:
+              type: string
+              example: "localhost:5000/xyz789"
+      400:
+        description: Dados inválidos
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "URL inválida"
+              enum:
+                - "JSON inválido ou ausente"
+                - "URL inválida"
+                - "URL muito longa"
+      401:
+        description: Token ausente ou inválido
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Token has expired"
+      409:
+        description: Conflito ao gerar URL curta
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "URL curta já existente"
+      500:
+        description: Erro interno
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Erro inesperado"
+              enum:
+                - "Erro ao gerar URL curta única"
+                - "Erro no banco de dados"
+                - "Erro inesperado"
+    """
     dados = request.get_json(silent=True)
     if not dados or not dados["url"]:
         return jsonify({"msg": "JSON inválido ou ausente"}), 400
@@ -87,6 +164,49 @@ def createShortUrl():
 @views_bp.route("/url/<short_url>", methods=["GET"])
 @jwt_required()
 def getUrl(short_url):
+    """
+    Busca uma URL pelo código curto
+    ---
+    tags:
+      - URLs
+    security:
+      - Bearer: []
+    parameters:
+      - name: short_url
+        in: path
+        type: string
+        required: true
+        description: Código curto da URL
+        example: "abc123"
+    responses:
+      200:
+        description: URL encontrada
+        schema:
+          type: object
+          properties:
+            url:
+              type: string
+              example: "https://meusite.com/pagina-longa"
+            shortCode:
+              type: string
+              example: "abc123"
+      401:
+        description: Token ausente ou inválido
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Token has expired"
+      404:
+        description: URL não encontrada
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Não encontrado"
+    """
     siteStored = Site.query.filter_by(url_short = short_url).first()
     if not siteStored:
         return jsonify({"msg": "Não encontrado"}), 404
@@ -96,6 +216,32 @@ def getUrl(short_url):
 @views_bp.route("/url", methods=["GET"])
 @jwt_required()
 def getUrls():
+    """
+    Lista todas as URLs encurtadas do usuário autenticado
+    ---
+    tags:
+      - URLs
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: Lista de URLs retornada com sucesso
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            "abc123": "https://meusite.com/pagina-longa"
+            "xyz789": "https://outrosite.com/outra-pagina"
+      401:
+        description: Token ausente ou inválido
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Token has expired"
+    """
     identity = get_jwt_identity()
     identityInt = int(identity)
 
@@ -109,6 +255,95 @@ def getUrls():
 @views_bp.route("/url/<short_url>", methods=["PUT"])
 @jwt_required()
 def upadateUrl(short_url):
+    """
+    Atualiza a URL completa de um código curto existente
+    ---
+    tags:
+      - URLs
+    security:
+      - Bearer: []
+    parameters:
+      - name: short_url
+        in: path
+        type: string
+        required: true
+        description: Código curto da URL a ser atualizada
+        example: "abc123"
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              example: "https://meusite.com/nova-pagina"
+    responses:
+      200:
+        description: URL atualizada com sucesso
+        schema:
+          type: object
+          properties:
+            short_url:
+              type: string
+              example: "abc123"
+            full_url:
+              type: string
+              example: "https://meusite.com/nova-pagina"
+      400:
+        description: Dados inválidos ou ausentes
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "JSON inválido ou ausente"
+      401:
+        description: Token ausente ou inválido
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Token has expired"
+      403:
+        description: Usuário não tem permissão para editar esta URL
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Forbidden"
+      404:
+        description: Código curto não encontrado
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Não encontrado"
+      409:
+        description: Erro de integridade no banco
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Erro de integridade"
+      500:
+        description: Erro interno
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Erro inesperado"
+              enum:
+                - "Erro no banco de dados"
+                - "Erro inesperado"
+    """
     dados = request.get_json(silent=True)
     if not dados or not dados["url"]:
         return jsonify({"msg": "JSON inválido ou ausente"}), 400
@@ -145,6 +380,67 @@ def upadateUrl(short_url):
 @views_bp.route("/url/<short_url>", methods=["DELETE"])
 @jwt_required()
 def deleteUrl(short_url):
+    """
+    Remove uma URL encurtada
+    ---
+    tags:
+      - URLs
+    security:
+      - Bearer: []
+    parameters:
+      - name: short_url
+        in: path
+        type: string
+        required: true
+        description: Código curto da URL a ser removida
+        example: "abc123"
+    responses:
+      204:
+        description: URL removida com sucesso
+      401:
+        description: Token ausente ou inválido
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Token has expired"
+      403:
+        description: Usuário não tem permissão para remover esta URL
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Forbidden"
+      404:
+        description: URL não encontrada
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "URL não encontrada"
+      409:
+        description: Erro de integridade no banco
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Erro de integridade"
+      500:
+        description: Erro interno
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Erro inesperado"
+              enum:
+                - "Erro no banco de dados"
+                - "Erro inesperado"
+    """
     siteStored = Site.query.filter_by(url_short = short_url).first()
     url = siteStored.full_url
     if not siteStored:
