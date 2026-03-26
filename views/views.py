@@ -395,7 +395,7 @@ def deleteUrl(short_url):
         description: Código curto da URL a ser removida
         example: "abc123"
     responses:
-      204:
+      200:
         description: URL removida com sucesso
       401:
         description: Token ausente ou inválido
@@ -442,10 +442,12 @@ def deleteUrl(short_url):
                 - "Erro inesperado"
     """
     siteStored = Site.query.filter_by(url_short = short_url).first()
-    url = siteStored.full_url
-    if not siteStored:
-        return jsonify({"msg":"URL nãzo encontrada"}), 404
     
+    if not siteStored:
+        return jsonify({"msg":"URL não encontrada"}), 404
+    
+    url = siteStored.full_url
+
     identity = get_jwt_identity()
     identityInt = int(identity)
 
@@ -467,7 +469,7 @@ def deleteUrl(short_url):
         db.session.rollback()
         return jsonify({"msg": "Erro inesperado"}), 500  
     
-    return jsonify({"msg": "Sucesso ao deletar URL","short_url": short_url, "full_url": url}),204
+    return jsonify({"msg": "Sucesso ao deletar URL","short_url": short_url, "full_url": url}),200
     
 
 @views_bp.route("/<short_url>")
